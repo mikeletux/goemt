@@ -11,6 +11,7 @@ import (
 const (
 	userAgent       = "goemt/1.0"
 	applicationJSON = "application/json"
+	apiVersion      = "v2"
 )
 
 /*
@@ -34,10 +35,19 @@ type ClientConfig struct {
 	//Enpoint is where the EMT openapi is located
 	Enpoint string
 
-	//xClientID value given by emtmadrid
+	// Email verified that user has registered using https://mobilitylabs.emtmadrid.es (mandatory if not put the X-ClientId and passKey params)
+	Email string
+
+	// Personal password (mandatory if not put the X-ClientId and passKey params)
+	Password string
+
+	// Optional when email and password are inserted, if not input, MobilityLabs openapi is asumed
+	XAPIKey string
+
+	// Optional when email and password are inserted, MobilityLabs openapi is asumed. Mandatory when passKey is inserted
 	XClientID string
 
-	//passKey value given by emtmadrid
+	// Optional. Mandatory if not exists email and password.
 	PassKey string
 
 	//Insecure enforces validation of SSL certificate
@@ -83,6 +93,17 @@ func Connect(config ClientConfig) (c *APIClient, err error) {
 		client.HTTPClient = config.HTTPClient
 	}
 
-	//Need to autenticate
+	/*Need to autenticate
+	Check three different kind of login from https://apidocs.emtmadrid.es/#api-Block_1_User_identity-login
+		- Basic: Allows to use the API on basic level (up to 25k hits/day). Mandatory request params are email and password
+		- Advanced: Allows to use the API on advanced level (up to 250k/day). Mandatory register your application in MobilityLabs and including in the request params are email, password, X-ApiKey and X-ClientId.
+		- Protected: Same functionality as Advanced but allows to protect your portal credentials and increase time session up to 86400 seconds. Mandatory X-ClientId and passKey.
+	*/
+	token, err := LoginProtected(client.HTTPClient, config)
+	if err != nil {
+		panic(err)
+	}
+	client.auth = token
 
+	return client, nil
 }
