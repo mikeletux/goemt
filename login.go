@@ -2,20 +2,25 @@ package goemt
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
-const loginEnpoint = "/mobilitylabs/user/login/"
+const (
+	userIdentity   = "/mobilitylabs/user"
+	loginMethod    = "/login/"
+	logoutMethod   = "/logout/"
+	loginEnpoint   = userIdentity + loginMethod
+	logoutEndpoint = userIdentity + logoutMethod
+)
 
 /*
 LoginResponse is the data structure where the response from the login endpoint is recorded
 */
 type LoginResponse struct {
-	Code        string `json:"code"`
-	Description string `json:"description"`
-	Datetime    string `json:"datetime"`
-	Data        []struct {
+	Common
+	Data []struct {
 		UpdatedAt          string `json:"updatedAt"`
 		UserName           string `json:"userName"`
 		AccessToken        string `json:"accessToken"`
@@ -32,15 +37,25 @@ type LoginResponse struct {
 	} `json:"data"`
 }
 
-// LoginProtected gets a token to query the rest of endpoints.
-// Protected: Same functionality as Advanced but allows to protect your portal credentials and increase time session up to 86400 seconds. Mandatory X-ClientId and passKey.
-func LoginProtected(c *http.Client, config ClientConfig) (s string, err error) {
+// Login gets a token to query the rest of endpoints.
+func Login(c *http.Client, config ClientConfig, mode string) (s string, err error) {
 	req, err := http.NewRequest("GET", config.Enpoint+loginEnpoint, nil)
 	if err != nil {
 		return s, err
 	}
-	req.Header.Add("X-ClientId", config.XClientID)
-	req.Header.Add("passKey", config.PassKey)
+	switch mode {
+	case "basic":
+		req.Header.Add("email", config.Email)
+		req.Header.Add("password", config.Password)
+	case "advanced":
+		req.Header.Add("email", config.Email)
+		req.Header.Add("password", config.Password)
+		req.Header.Add("X-ApiKey", config.XAPIKey)
+		req.Header.Add("X-ClientId", config.XClientID)
+	case "protected":
+		req.Header.Add("X-ClientId", config.XClientID)
+		req.Header.Add("passKey", config.PassKey)
+	}
 	res, err := c.Do(req)
 	if err != nil {
 		return s, err
@@ -56,6 +71,41 @@ func LoginProtected(c *http.Client, config ClientConfig) (s string, err error) {
 	if err != nil {
 		return s, err
 	}
+	if data.Code != "00" {
+		return s, fmt.Errorf("emt server error - code %s - description %s", data.Code, data.Description)
+	}
 	return data.Data[0].AccessToken, nil
+}
 
+/*
+Logout function finishes a session with the EMT rest API server
+Needs a APIClient struct initialized to sucessfully close the connection
+*/
+func Logout(c *APIClient) error {
+	req, err := http.NewRequest("GET", c.endpoint+logoutEndpoint, nil)
+	if err != nil {
+		return err
+	}
+	if c.auth == "" {
+		return fmt.Errorf("cannot log out, there's no session created")
+	}
+	req.Header.Add("accessToken", c.auth)
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	var data Common
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return err
+	}
+	if data.Code != "03" {
+		return fmt.Errorf("emt server error - code %s - description %s", data.Code, data.Description)
+	}
+	return nil
 }

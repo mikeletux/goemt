@@ -15,20 +15,6 @@ const (
 )
 
 /*
-APIClient struct where all connection data is stored
-*/
-type APIClient struct {
-	// Endpoint is the URL of the EMT service
-	endpoint string
-
-	// HTTPClient is of direct HTTP actions
-	HTTPClient *http.Client
-
-	// Auth is where the token for auth will be hold
-	auth string
-}
-
-/*
 ClientConfig struct is used for user login
 */
 type ClientConfig struct {
@@ -60,6 +46,43 @@ type ClientConfig struct {
 	HTTPClient *http.Client
 }
 
+/*
+getLoginMethod Checks three different kind of login from https://apidocs.emtmadrid.es/#api-Block_1_User_identity-login
+	- Basic: Allows to use the API on basic level (up to 25k hits/day). Mandatory request params are email and password
+	- Advanced: Allows to use the API on advanced level (up to 250k/day). Mandatory register your application in MobilityLabs and including in the request params are email, password, X-ApiKey and X-ClientId.
+	- Protected: Same functionality as Advanced but allows to protect your portal credentials and increase time session up to 86400 seconds. Mandatory X-ClientId and passKey.
+*/
+func (c ClientConfig) getLoginMethod() (m string, err error) {
+	if c.Email != "" && c.Password != "" && c.XAPIKey == "" && c.XClientID == "" && c.PassKey == "" {
+		return "basic", nil
+	}
+	if c.Email != "" && c.Password != "" && c.XAPIKey != "" && c.XClientID != "" && c.PassKey == "" {
+		return "advanced", nil
+	}
+	if c.Email == "" && c.Password == "" && c.XAPIKey == "" && c.XClientID != "" && c.PassKey != "" {
+		return "protected", nil
+	}
+	return m, fmt.Errorf("login parameters are ambiguous")
+}
+
+/*
+APIClient struct where all connection data is stored
+*/
+type APIClient struct {
+	// Endpoint is the URL of the EMT service
+	endpoint string
+
+	// HTTPClient is of direct HTTP actions
+	HTTPClient *http.Client
+
+	// Auth is where the token for auth will be hold
+	auth string
+}
+
+/*
+Connect returns a APIClient usable for getting info from the EMT Rest API.
+It needs a ClientConfig struct to be able to log in.
+*/
 func Connect(config ClientConfig) (c *APIClient, err error) {
 
 	if !strings.HasPrefix(config.Enpoint, "http") {
@@ -92,18 +115,28 @@ func Connect(config ClientConfig) (c *APIClient, err error) {
 	} else {
 		client.HTTPClient = config.HTTPClient
 	}
-
-	/*Need to autenticate
-	Check three different kind of login from https://apidocs.emtmadrid.es/#api-Block_1_User_identity-login
-		- Basic: Allows to use the API on basic level (up to 25k hits/day). Mandatory request params are email and password
-		- Advanced: Allows to use the API on advanced level (up to 250k/day). Mandatory register your application in MobilityLabs and including in the request params are email, password, X-ApiKey and X-ClientId.
-		- Protected: Same functionality as Advanced but allows to protect your portal credentials and increase time session up to 86400 seconds. Mandatory X-ClientId and passKey.
-	*/
-	token, err := LoginProtected(client.HTTPClient, config)
+	//Check kind of login mode
+	loginMode, err := config.getLoginMethod()
 	if err != nil {
-		panic(err)
+		return c, err
+	}
+	//Need to authenticate
+	token, err := Login(client.HTTPClient, config, loginMode)
+	if err != nil {
+		return c, err
 	}
 	client.auth = token
 
 	return client, nil
+}
+
+/*
+Logout method closes the session against the EMT rest API
+*/
+func (c *APIClient) Logout() error {
+	err := Logout(c)
+	if err != nil {
+		return err
+	}
+	return nil
 }
