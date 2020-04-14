@@ -82,6 +82,9 @@ Logout function finishes a session with the EMT rest API server
 Needs a APIClient struct initialized to sucessfully close the connection
 */
 func Logout(c *APIClient) error {
+	if c == nil {
+		return fmt.Errorf("APIClient cannot be nil")
+	}
 	req, err := http.NewRequest("GET", c.endpoint+logoutEndpoint, nil)
 	if err != nil {
 		return err
