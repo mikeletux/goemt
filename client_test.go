@@ -124,3 +124,47 @@ func TestLogout(t *testing.T) {
 		}
 	}
 }
+
+func TestGet(t *testing.T) {
+	type TestDataItem struct {
+		testNo   int
+		url      string
+		hasError bool
+	}
+
+	dataTest := []TestDataItem{
+		{1, "/mobilitylabs/user/whoami/", false},
+		{2, "/mobilitylabs/user/fakeurl/", true},
+	}
+
+	configBasic := ClientConfig{
+		Enpoint:  os.Getenv("EMT_ENDPOINT"),
+		Email:    os.Getenv("EMT_EMAIL"),
+		Password: os.Getenv("EMT_PASSWORD"),
+	}
+
+	c, err := Connect(configBasic)
+	if err != nil {
+		t.Errorf("couldn't connect to the service")
+		return
+	}
+	defer c.Logout()
+	for _, v := range dataTest {
+		data, err := c.Get(v.url)
+		if v.hasError {
+			if err != nil {
+				t.Logf("SUCCEED: Get() was supposed to fail in test %d Error: %v", v.testNo, err)
+			} else {
+				t.Errorf("FAILED: Get() succeeed, was supposed to fail in test %d Error: %v", v.testNo, err)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("FAILED: Get() failed, was supposed to succeed in test %d Error: %v", v.testNo, err)
+			} else {
+				t.Logf("SUCCEED: Get() succeed in test %d with data %v", v.testNo, data)
+			}
+		}
+	}
+}
+
+//NEED TO TEST POST!!!!!!

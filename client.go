@@ -1,8 +1,12 @@
 package goemt
 
 import (
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -63,6 +67,18 @@ func (c ClientConfig) getLoginMethod() (m string, err error) {
 		return "protected", nil
 	}
 	return m, fmt.Errorf("login parameters are ambiguous")
+}
+
+/*
+IAPI interface is the interface passed to all functions that retreive data from the EMT API.
+The struct that implements it, need to have three methods, Get() and Post() which are the ones used in the EMT Rest API.
+This also allow us to test the components individually.
+*/
+type IAPI interface {
+	Get(endpoint string) (res []byte, err error)
+	Post(endpoint string, payload interface{}) (res []byte, err error)
+	//Delete(endpoint string) (res []byte, err error)
+	GetEndpoint() string
 }
 
 /*
@@ -140,3 +156,87 @@ func (c *APIClient) Logout() error {
 	}
 	return nil
 }
+
+/*
+GetEndpoint method returns the endpoint for the EMT service
+*/
+func (c *APIClient) GetEndpoint() string {
+	return c.endpoint
+}
+
+/*
+runRequest method actually is the one that do the request against the EMT Rest API
+Parameters are:
+	method -> GET,POST or DELETE
+	endpoint -> The endpoint to query. Just the last part, like: /mobilitylabs/user/whoami/
+	payload -> The data to send to the server (if there's a need to)
+*/
+func (c *APIClient) runRequest(method string, endpoint string, payload interface{}) (data []byte, err error) {
+	if endpoint == "" {
+		return data, fmt.Errorf("no endpoint has been provided")
+	}
+
+	fullURL := fmt.Sprintf("%s%s", c.endpoint, endpoint)
+
+	//Read from the structure coming as third argument
+	var payloadBuffer io.Reader
+	if payload != nil {
+		json, err := json.Marshal(payload)
+		if err != nil {
+			return data, err
+		}
+		payloadBuffer = bytes.NewReader(json)
+	}
+	req, err := http.NewRequest(method, fullURL, payloadBuffer)
+
+	//Insert common headers
+	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("Accept", applicationJSON)
+
+	//Insert auth headers
+	req.Header.Add("accessToken", c.auth)
+
+	if payload != nil {
+		//Insert content type
+		req.Header.Add("Content-Type", applicationJSON)
+	}
+	req.Close = true //Close the connecting right after is done
+
+	res, err := c.HTTPClient.Do(req)
+
+	if err != nil {
+		return data, err
+	}
+	defer res.Body.Close()
+
+	//Check HTTP error codes
+	if res.StatusCode != 200 && res.StatusCode != 201 && res.StatusCode != 202 && res.StatusCode != 203 && res.StatusCode != 204 {
+		return data, fmt.Errorf("http response wasn't 200 through 204. Error code %d", res.StatusCode)
+	}
+	data, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return data, nil
+	}
+	return
+}
+
+/*
+Get method queries the server using the GET HTTP method
+*/
+func (c *APIClient) Get(endpoint string) (res []byte, err error) {
+	return c.runRequest("GET", endpoint, nil)
+}
+
+/*
+Post method queries the server using the POST HTTP method
+*/
+func (c *APIClient) Post(endpoint string, payload interface{}) (res []byte, err error) {
+	return c.runRequest("POST", endpoint, payload)
+}
+
+/*
+Delete method queries the server using the POST HTTP method
+*/
+//func (c *APIClient) Delete(endpoint string) (res []byte, err error) {
+//	return c.runRequest("DELETE", endpoint, nil)
+//}
