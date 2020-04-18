@@ -1,14 +1,14 @@
 package busemtmad
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"github.com/mikeletux/goemt"
 	"strings"
 )
 
 const (
-	serviceEndpoint = "/transport/busemtmad/stops/<stopId>/detail/"
+	endpointStopDetail = "/transport/busemtmad/stops/<stopId>/detail/"
 )
 
 /*
@@ -77,21 +77,11 @@ Parameters:
 	stopID -> Stop number.
 */
 func GetStopDetail(api goemt.IAPI, stopID int) (stopDetails []Stop, err error) {
-	if api == nil {
-		return stopDetails, fmt.Errorf("api being used is nil")
-	}
-	finalServiceEnpoint := strings.ReplaceAll(serviceEndpoint, "<stopId>", fmt.Sprintf("%d", stopID))
-	data, err := api.Get(finalServiceEnpoint)
-	if err != nil {
-		return stopDetails, err
-	}
 	var stopData stopDetail
-	err = json.Unmarshal(data, &stopData)
+	finalServiceEnpoint := strings.ReplaceAll(endpointStopDetail, "<stopId>", fmt.Sprintf("%d", stopID))
+	err = getInfoFromPlatform(api, finalServiceEnpoint, &stopData)
 	if err != nil {
 		return stopDetails, err
-	}
-	if stopData.Code != "00" {
-		return stopDetails, fmt.Errorf(stopData.Description)
 	}
 	return stopData.Data[0].Stops, nil
 }
