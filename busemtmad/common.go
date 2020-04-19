@@ -6,6 +6,12 @@ import (
 	"github.com/mikeletux/goemt"
 )
 
+const (
+	endpointStopDetail                   = "/transport/busemtmad/stops/<stopId>/detail/"
+	endpointStopsAroundStop              = "/transport/busemtmad/stops/arroundstop/<stopId>/<radius>/"
+	endpointStopsAroundGeographicalPoint = "/transport/busemtmad/stops/arroundxy/<longitude>/<latitude>/<radius>/"
+)
+
 /*
 GetInfoFromPlatform function fills a give structure with the data from the EMT Rest API
 Parameters:

@@ -1,14 +1,9 @@
 package busemtmad
 
 import (
-	//"encoding/json"
 	"fmt"
 	"github.com/mikeletux/goemt"
 	"strings"
-)
-
-const (
-	endpointStopDetail = "/transport/busemtmad/stops/<stopId>/detail/"
 )
 
 /*
