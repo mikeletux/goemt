@@ -70,6 +70,9 @@ GetStopDetail function returns details of the stop request from EMTMADRID.
 Parameters:
 	api -> Struct that implements the IAPI interface (i.e APIClient)
 	stopID -> Stop number.
+Returns:
+	stopDetails -> slice with Stop with all the info queried
+	err -> if there's any error, err will be set. nil otherwise.
 */
 func GetStopDetail(api goemt.IAPI, stopID int) (stopDetails []Stop, err error) {
 	var stopData stopDetail

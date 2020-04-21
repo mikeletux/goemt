@@ -12,6 +12,7 @@ const (
 	endpointStopsAroundGeographicalPoint = "/transport/busemtmad/stops/arroundxy/<longitude>/<latitude>/<radius>/"
 	endpointTimeArrivalBus               = "/transport/busemtmad/stops/<stopId>/arrives/<lineArrive>/" //POST METHOD
 	endpointCalendar                     = "/transport/busemtmad/calendar/<startdate>/<enddate>/"
+	endpointIncidents                    = "/transport/busemtmad/lines/incidents/<lineid>/"
 )
 
 /*

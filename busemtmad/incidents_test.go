@@ -6,13 +6,12 @@ import (
 	"testing"
 )
 
-func TestGetCalendar(t *testing.T) {
+func TestGetIncidents(t *testing.T) {
 	type TestDataItem struct {
-		testNo    int
-		api       goemt.IAPI
-		startDate int
-		endDate   int
-		hasError  bool
+		testNo   int
+		api      goemt.IAPI
+		lineID   int
+		hasError bool
 	}
 
 	configProtected := goemt.ClientConfig{
@@ -31,14 +30,14 @@ func TestGetCalendar(t *testing.T) {
 	defer c.Logout()
 
 	testData := []TestDataItem{
-		{1, c, 20200601, 20200607, false},
-		{2, c, 123, 123, true},
-		{3, c, 20200605, 20200601, true}, //start date is after the enddate
+		{1, c, 46, false},
+		{2, c, 0, true},
+		{3, nil, 46, true},
 	}
 
 	for _, v := range testData {
 		//Execute func
-		data, err := GetCalendar(v.api, v.startDate, v.endDate)
+		data, err := GetIncidents(v.api, v.lineID)
 		if v.hasError {
 			if err != nil {
 				t.Logf("SUCCESS: Test no %d has supposed to fail. Error: %v", v.testNo, err)
@@ -53,5 +52,4 @@ func TestGetCalendar(t *testing.T) {
 			}
 		}
 	}
-
 }
