@@ -10,7 +10,7 @@ import (
 /*
 BusStop struct holds all information regarding the bus stops sourrounding one, given a radius
 */
-type busStop struct {
+type BusStop struct {
 	Geometry struct {
 		Type        string    `json:"type"`
 		Coordinates []float64 `json:"coordinates"`
@@ -30,18 +30,11 @@ type busStop struct {
 }
 
 /*
-BusStops is the struct where all info regarding bus stops will be stored
-*/
-type BusStops []struct {
-	Stops []busStop `json:"stops"`
-}
-
-/*
 Aux struct that will be used to get the info from the Rest API
 */
 type busStopsAux struct {
 	goemt.Common
-	Data BusStops `json:"data"`
+	Data []BusStop `json:"data"`
 }
 
 /*
@@ -50,8 +43,11 @@ Parameters:
 	api -> Struct that implements the IAPI interface (i.e APIClient)
 	stopID -> Stop number.
 	radius -> Radius in meters
+Returns:
+	busStops -> slice with BusStop structs with the queried data
+	err -> if there's any error, err will be set. nil otherwise.
 */
-func GetStopsAroundStop(api goemt.IAPI, stopID int, radius int) (busStops BusStops, err error) {
+func GetStopsAroundStop(api goemt.IAPI, stopID int, radius int) (busStops []BusStop, err error) {
 	var data busStopsAux
 	if stopID == 0 || radius == 0 {
 		return busStops, fmt.Errorf("stopID and radius must be different from 0")
@@ -71,8 +67,11 @@ Parameters:
 	api -> Struct that implements the IAPI interface (i.e APIClient)
 	longitude and latitude -> Geographical point
 	radius -> Radius in meters
+Returns:
+	busStops -> slice with BusStop structs with the queried data
+	err -> if there's any error, err will be set. nil otherwise.
 */
-func GetStopsAroundGeographicalPoint(api goemt.IAPI, longitude, latitude float64, radius int) (busStops BusStops, err error) {
+func GetStopsAroundGeographicalPoint(api goemt.IAPI, longitude, latitude float64, radius int) (busStops []BusStop, err error) {
 	var data busStopsAux
 	if longitude == 0.0 || latitude == 0.0 || radius == 0 { //It is true that lat or long 0.0 exist, but since the API is for Madrid EMT bus system, it doesn't make sense
 		return busStops, fmt.Errorf("longitude, latitude and radius must be different from 0")
