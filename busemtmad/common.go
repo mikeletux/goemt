@@ -10,6 +10,7 @@ const (
 	endpointStopDetail                   = "/transport/busemtmad/stops/<stopId>/detail/"
 	endpointStopsAroundStop              = "/transport/busemtmad/stops/arroundstop/<stopId>/<radius>/"
 	endpointStopsAroundGeographicalPoint = "/transport/busemtmad/stops/arroundxy/<longitude>/<latitude>/<radius>/"
+	endpointTimeArrivalBus               = "/transport/busemtmad/stops/<stopId>/arrives/<lineArrive>/" //POST METHOD
 )
 
 /*
@@ -33,6 +34,24 @@ func getInfoFromPlatform(api goemt.IAPI, serviceEndpoint string, dataStructure g
 	}
 	if dataStructure.GetAPIReturnCode() != "00" {
 		return fmt.Errorf(dataStructure.GetAPIReturnDescription())
+	}
+	return nil
+}
+
+func postInfoToPlatform(api goemt.IAPI, serviceEndpoint string, postDataStructure interface{}, returnDataStructure goemt.DataInterface) (err error) {
+	if api == nil {
+		return fmt.Errorf("api being used is nil")
+	}
+	data, err := api.Post(serviceEndpoint, postDataStructure)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(data, &returnDataStructure)
+	if err != nil {
+		return err
+	}
+	if returnDataStructure.GetAPIReturnCode() != "00" {
+		return fmt.Errorf(returnDataStructure.GetAPIReturnDescription())
 	}
 	return nil
 }
