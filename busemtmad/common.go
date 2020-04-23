@@ -13,6 +13,7 @@ const (
 	endpointTimeArrivalBus               = "/transport/busemtmad/stops/<stopId>/arrives/<lineArrive>/" //POST METHOD
 	endpointCalendar                     = "/transport/busemtmad/calendar/<startdate>/<enddate>/"
 	endpointIncidents                    = "/transport/busemtmad/lines/incidents/<lineid>/"
+	endpointInfoLineDetail               = "/transport/busemtmad/lines/<lineId>/info/<dateref>/"
 )
 
 /*
