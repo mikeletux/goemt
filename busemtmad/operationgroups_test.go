@@ -6,11 +6,10 @@ import (
 	"testing"
 )
 
-func TestGetListStops(t *testing.T) {
+func TestGetOperationGroups(t *testing.T) {
 	type TestDataItem struct {
 		testNo   int
 		api      goemt.IAPI
-		postData PostListStops
 		hasError bool
 	}
 
@@ -30,15 +29,13 @@ func TestGetListStops(t *testing.T) {
 	defer c.Logout()
 
 	testData := []TestDataItem{
-		{1, c, PostListStops{2537}, false},
-		{2, c, nil, false},
-		{3, c, PostListStops{2537, 72}, false},
-		{4, nil, nil, true},
+		{1, c, false},
+		{2, nil, true},
 	}
 
 	for _, v := range testData {
 		//Execute func
-		data, err := GetListStops(v.api, v.postData)
+		data, err := GetOperationGroups(v.api)
 		if v.hasError {
 			if err != nil {
 				t.Logf("SUCCESS: Test no %d has supposed to fail. Error: %v", v.testNo, err)

@@ -18,6 +18,7 @@ const (
 	endpointInfoStopsGeneral             = "/transport/busemtmad/stops/list/" //POST METHOD
 	endpointLineStops                    = "/transport/busemtmad/lines/<lineId>/stops/<direction>/"
 	endpointListStops                    = "/transport/busemtmad/stops/list/" //POST METHOD
+	endpointOperationGroups              = "/transport/busemtmad/lines/groups/"
 )
 
 /*
