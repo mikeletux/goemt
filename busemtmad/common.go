@@ -19,6 +19,7 @@ const (
 	endpointLineStops                    = "/transport/busemtmad/lines/<lineId>/stops/<direction>/"
 	endpointListStops                    = "/transport/busemtmad/stops/list/" //POST METHOD
 	endpointOperationGroups              = "/transport/busemtmad/lines/groups/"
+	endpointRouteOfLine                  = "/transport/busemtmad/lines/<labelId>/route/"
 )
 
 /*
