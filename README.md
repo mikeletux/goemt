@@ -28,6 +28,11 @@ api, err := goemt.Connect(config)
 	}
 ```
 Once you're logged in the platform, you can use the different functions **(TO BE DONE)**. When you are done, use the Logout() method from the **APIClient** to close the session agains the EMT server.  
+
+Known issues:
+- GetTimeTableStartStop function doesn't work because platform returns Error code 90: Error managing internal services  
+
   
-  Miguel Sama 2020 (miguelsamamerino@gmail.com)
+Miguel Sama 2020 (miguelsamamerino@gmail.com)  
+GoEMT logo by Marta Recio (martarecio2011ti22@gmail.com)
 

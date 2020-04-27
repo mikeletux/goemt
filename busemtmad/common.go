@@ -21,6 +21,7 @@ const (
 	endpointOperationGroups              = "/transport/busemtmad/lines/groups/"
 	endpointRouteOfLine                  = "/transport/busemtmad/lines/<labelId>/route/"
 	endpointStopsAroundPlaces            = "/transport/busemtmad/stops/arroundstreet/<namePlace>/<number_or_zero_street_number>/<radius>/"
+	endpointTimeTableStartStop           = "/transport/busemtmad/lines/<lineId>/timetable/"
 )
 
 /*
