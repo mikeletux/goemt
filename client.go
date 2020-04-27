@@ -233,10 +233,3 @@ Post method queries the server using the POST HTTP method
 func (c *APIClient) Post(endpoint string, payload interface{}) (res []byte, err error) {
 	return c.runRequest("POST", endpoint, payload)
 }
-
-/*
-Delete method queries the server using the POST HTTP method
-*/
-//func (c *APIClient) Delete(endpoint string) (res []byte, err error) {
-//	return c.runRequest("DELETE", endpoint, nil)
-//}

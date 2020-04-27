@@ -23,6 +23,7 @@ const (
 	endpointStopsAroundPlaces            = "/transport/busemtmad/stops/arroundstreet/<namePlace>/<number_or_zero_street_number>/<radius>/"
 	endpointTimeTableStartStop           = "/transport/busemtmad/lines/<lineId>/timetable/"
 	endpointTimeTableTrips               = "/transport/busemtmad/lines/<lineId>/trips/<dateRef>/"
+	endpointTravelPlan                   = "/transport/busemtmad/travelplan/" //POST METHOD
 )
 
 /*
