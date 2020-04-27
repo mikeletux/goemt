@@ -1,4 +1,6 @@
-# Goemt library
+# GoEMT library
+![Image of GoEMT](images/Logo.png )
+
 This project aims to implement the Go bindings for the EMT Rest API.  
 The EMT is the public transportation company from Madrid city. Using this API can be useful for getting live information from the service (waiting times, stop locations, etc). For full Rest API referece, please reffer to [HERE](https://apidocs.emtmadrid.es/).  
 
