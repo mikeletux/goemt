@@ -31,16 +31,35 @@ TimeArrivalBus struct is where all information regarding Time Arrival from Buses
 */
 type TimeArrivalBus struct {
 	Arrive []struct {
-		DistanceBus     int    `json:"DistanceBus"`
-		Bus             int    `json:"bus"`
-		Destination     string `json:"destination"`
-		Deviation       int    `json:"deviation"`
-		Stop            string `json:"stop"`
+		//Meters of bus to stop.
+		DistanceBus int `json:"DistanceBus"`
+
+		//Number of vehicle.
+		Bus int `json:"bus"`
+
+		//Destination of itinerary.
+		Destination string `json:"destination"`
+
+		//No specified
+		Deviation int `json:"deviation"`
+
+		//Stop number.
+		Stop string `json:"stop"`
+
+		//No apply for this version.
 		PositionTypeBus string `json:"positionTypeBus"`
-		IsHead          string `json:"isHead"`
-		Line            string `json:"line"`
-		EstimateArrive  int    `json:"estimateArrive"`
-		Geometry        struct {
+
+		//No apply for this version.
+		IsHead string `json:"isHead"`
+
+		//Bus Line value.
+		Line string `json:"line"`
+
+		//Seconds to arrive bus (999999 = more than 45 minutes in conventional lines, more than 90 minutes in nightly lines).
+		EstimateArrive int `json:"estimateArrive"`
+
+		//GEOJSON coordinates of busPosition.
+		Geometry struct {
 			Type        string    `json:"type"`
 			Coordinates []float64 `json:"coordinates"`
 		} `json:"geometry"`

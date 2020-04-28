@@ -11,21 +11,40 @@ import (
 BusStop struct holds all information regarding the bus stops sourrounding one, given a radius
 */
 type BusStop struct {
+	//GEOJSON coordinates of stop
 	Geometry struct {
 		Type        string    `json:"type"`
 		Coordinates []float64 `json:"coordinates"`
 	} `json:"geometry"`
 
-	StopID        int64  `json:"stopId"`
-	MetersToPoint int64  `json:"metersToPoint"`
-	StopName      string `json:"stopName"`
-	Lines         []struct {
-		NameA            string `json:"nameA"`
-		NameB            string `json:"nameB"`
-		MetersFromHeader int64  `json:"metersFromHeader"`
-		Label            string `json:"label"`
-		To               string `json:"to"`
-		Line             string `json:"line"`
+	//Stop number
+	StopID int64 `json:"stopId"`
+
+	//metersToPoint
+	MetersToPoint int64 `json:"metersToPoint"`
+
+	//Name of stop
+	StopName string `json:"stopName"`
+
+	// array with lines belong to stop
+	Lines []struct {
+		// Name or Header A of line
+		NameA string `json:"nameA"`
+
+		//Name or Header B of line
+		NameB string `json:"nameB"`
+
+		// Distance of referred stop from the header of line
+		MetersFromHeader int64 `json:"metersFromHeader"`
+
+		//public code of line
+		Label string `json:"label"`
+
+		//Position into itinerary (header A to header B is to "B" and viceversa)
+		To string `json:"to"`
+
+		// internal code of line
+		Line string `json:"line"`
 	} `json:"lines"`
 }
 
