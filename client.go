@@ -93,6 +93,9 @@ type APIClient struct {
 
 	// Auth is where the token for auth will be hold
 	auth string
+
+	// tokenExpiration represents the unix time token timeout
+	tokenExpiration int64
 }
 
 /*
@@ -137,11 +140,12 @@ func Connect(config ClientConfig) (c *APIClient, err error) {
 		return c, err
 	}
 	//Need to authenticate
-	token, err := Login(client.HTTPClient, config, loginMode)
+	response, err := Login(client.HTTPClient, config, loginMode)
 	if err != nil {
 		return c, err
 	}
-	client.auth = token
+	client.auth = response.Data[0].AccessToken
+	client.tokenExpiration = (time.Now().Unix() + response.Data[0].TokenSecExpiration) - 300 // Give 5 minutes as window
 
 	return client, nil
 }

@@ -24,7 +24,7 @@ type LoginResponse struct {
 		UpdatedAt          string `json:"updatedAt"`
 		UserName           string `json:"userName"`
 		AccessToken        string `json:"accessToken"`
-		TokenSecExpiration int    `json:"tokenSecExpiration"`
+		TokenSecExpiration int64  `json:"tokenSecExpiration"`
 		Email              string `json:"email"`
 		IDUser             string `json:"idUser"`
 		APICounter         struct {
@@ -38,7 +38,7 @@ type LoginResponse struct {
 }
 
 // Login gets a token to query the rest of endpoints.
-func Login(c *http.Client, config ClientConfig, mode string) (s string, err error) {
+func Login(c *http.Client, config ClientConfig, mode string) (s *LoginResponse, err error) {
 	req, err := http.NewRequest("GET", config.Enpoint+loginEnpoint, nil)
 	if err != nil {
 		return s, err
@@ -71,10 +71,11 @@ func Login(c *http.Client, config ClientConfig, mode string) (s string, err erro
 	if err != nil {
 		return s, err
 	}
-	if data.Code != "00" {
-		return s, fmt.Errorf("emt server error - code %s - description %s", data.Code, data.Description)
+	if data.Code == "00" || data.Code == "01" {
+		return &data, nil
 	}
-	return data.Data[0].AccessToken, nil
+	return s, fmt.Errorf("emt server error - code %s - description %s", data.Code, data.Description)
+
 }
 
 /*
