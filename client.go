@@ -161,6 +161,14 @@ func (c *APIClient) Logout() error {
 	return nil
 }
 
+// IsTokenExpired returns if the current token being used is expired
+func (c *APIClient) IsTokenExpired() bool {
+	if time.Now().Unix() > c.tokenExpiration {
+		return true
+	}
+	return false
+}
+
 /*
 GetEndpoint method returns the endpoint for the EMT service
 */
