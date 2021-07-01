@@ -96,6 +96,9 @@ type APIClient struct {
 
 	// tokenExpiration represents the unix time token timeout
 	tokenExpiration int64
+
+	// config holds the config struct for reconnect if needed
+	config ClientConfig
 }
 
 /*
@@ -146,6 +149,7 @@ func Connect(config ClientConfig) (c *APIClient, err error) {
 	}
 	client.auth = response.Data[0].AccessToken
 	client.tokenExpiration = (time.Now().Unix() + response.Data[0].TokenSecExpiration) - 300 // Give 5 minutes as window
+	client.config = config
 
 	return client, nil
 }
@@ -162,11 +166,8 @@ func (c *APIClient) Logout() error {
 }
 
 // IsTokenExpired returns if the current token being used is expired
-func (c *APIClient) IsTokenExpired() bool {
-	if time.Now().Unix() > c.tokenExpiration {
-		return true
-	}
-	return false
+func (c *APIClient) isTokenExpired() bool {
+	return time.Now().Unix() > c.tokenExpiration
 }
 
 /*
@@ -186,6 +187,15 @@ Parameters are:
 func (c *APIClient) runRequest(method string, endpoint string, payload interface{}) (data []byte, err error) {
 	if endpoint == "" {
 		return data, fmt.Errorf("no endpoint has been provided")
+	}
+
+	// Check if token is expired
+	if c.isTokenExpired() {
+		refreshedClient, err := Connect(c.config)
+		if err != nil {
+			return nil, fmt.Errorf("there was an error when refreshing the token - %s", err)
+		}
+		c = refreshedClient
 	}
 
 	fullURL := fmt.Sprintf("%s%s", c.endpoint, endpoint)

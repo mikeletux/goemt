@@ -1,9 +1,10 @@
 package busemtmad
 
 import (
-	"github.com/mikeletux/goemt"
 	"os"
 	"testing"
+
+	"github.com/mikeletux/goemt"
 )
 
 func TestGetRouteOfLine(t *testing.T) {
@@ -16,10 +17,8 @@ func TestGetRouteOfLine(t *testing.T) {
 
 	configProtected := goemt.ClientConfig{
 		Enpoint:   os.Getenv("EMT_ENDPOINT"),
-		Email:     os.Getenv("EMT_EMAIL"),
-		Password:  os.Getenv("EMT_PASSWORD"),
-		XAPIKey:   os.Getenv("EMT_XAPIKEY"),
 		XClientID: os.Getenv("EMT_XCLIENTID"),
+		PassKey:   os.Getenv("EMT_PASSKEY"),
 	}
 
 	c, err := goemt.Connect(configProtected)
